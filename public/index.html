@@ -1,0 +1,202 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>LetC</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<meta name="mobile-web-app-capable" content="yes" >
+		<meta name="apple-mobile-web-app-capable" content="yes" >
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		
+		<meta name="apple-mobile-web-app-title" content="LetC" />
+		<meta name="mobile-web-app-title" content="LetC" />
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'">-->
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="shortcut icon" href="./letc.ico">
+		<link rel="icon" href="./letc.ico" />
+		<link rel="apple-touch-icon" sizes="128x128" href="./letc.png">
+
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+
+		<!-- Scripts -->
+		<script src="speak/node_modules/platform/platform.js"></script>
+		<script src="speak/src/webspeech.js"></script>
+		<!--<script src="MobileServices.Web.min.js"></script>-->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+		<script src="assets/js/main.js"></script>
+
+	</head>
+	<body>
+
+		<!-- Header -->
+			<section id="header">
+				<div class="inner">
+					<span class="icon major fa-eye"></span>
+					<h1>Hi, I'm <strong>LetsC</strong>!<br />
+						I help relay information about what's in front of you!</h1>
+					<p>I use Azure's cognitave services to relay or read out what's in front of you (through the camera), all through voice command!</p>
+					
+					<ul class="actions">
+						<li><a href="#one" class="button scrolly">Start</a></li>
+					</ul>
+				</div>
+			</section>
+
+		<!-- One -->
+			<section id="one" class="main style1">
+				<div class="container">
+					<div class="row 150%">
+						<div class="6u 12u$(medium)">
+							<header class="major">
+								<h2>To get started,<br />
+								ask, "LetsC what's in front of me?"<br />
+								or, click to add a picture below.</h2>
+							</header>
+						</div>
+						<div class="6u$ 12u$(medium) important(medium)">
+							<span class="image fit">
+								<video id="capturevideo" width="280" height="230" class="d-none" onclick="captureImage()"></video>
+								<div class="video-options">
+									<select name="" id="" class="custom-select">
+										<option value="">Select camera</option>
+									</select>
+								</div>
+							</span>
+						</div>
+						
+						<!-- <div class="6u$ 12u$(medium) important(medium)">
+							<span class="image fit">
+								<input id="camera" class="controls" type="file" accept="image/*" capture="camera" >
+							</span>
+						</div> -->
+
+						<div class="6u$ 12u$(medium) important(medium)">
+							<span class="image fit">
+								<img id="frame" class="img-rounded">
+								<canvas id="capturecanvas" width="280" height="230" class="img-rounded"></canvas>
+								<h2 id="frameLabel"></h2>
+							</span>
+						</div>
+
+					</div>
+				</div>
+			</section>
+			<script type="text/javascript">
+				let videoCapture;
+				$(document).ready(function () {
+					videoCapture = document.getElementById('capturevideo');
+				});
+				if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+					// access video stream from webcam
+					navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+						// on success, stream it in video tag 
+						window.localStream = stream;
+						videoCapture.srcObject = stream;
+						videoCapture.play();
+						//activateCamera();
+					}).catch(e => {
+						// on failure/error, alert message. 
+						console.log(e);
+						alert("Please Allow: Use Your Camera!");
+					});
+				}
+				const SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+				const recognition = new SpeechRecognition();
+				const speaker = new webspeech.Speaker();
+				//const listener = new webspeech.Listener();
+
+				const triggerText = "let's see what's in front of me";
+				const camera = document.getElementById('camera');
+				let canvas = document.getElementById('capturecanvas');
+				let frame = document.getElementById('frame');
+				let frameLabel = document.getElementById('frameLabel');
+				//jQuery.noConflict();
+			    
+				recognition.start();
+				recognition.onerror = (event) => {
+					console.log("Error"); 
+				}
+				recognition.onresult = (event) => {
+					let text = event.results[0][0].transcript;
+					if (triggerText.indexOf(text) !== -1){
+						speaker.speak("en", "let me check!");
+						canvas.getContext('2d').drawImage(videoCapture, 0, 0, 280, 230);
+						canvas.focus();
+						let image = canvas.toDataURL("image/jpeg", 1.0);
+						let blob = dataURLtoBlob(image);
+						let	file = new File([blob], "image.jpg", { type: "image/jpeg" });
+						describeImage(file);
+					}
+				}			    
+			</script>
+			
+			<script src="script.js"></script>
+			<script type="text/javascript">
+				const captureImage = () => {
+					speaker.speak("en", "let me check!");
+					canvas.getContext('2d').drawImage(videoCapture, 0, 0, 280, 230);
+					canvas.focus();
+					let image = canvas.toDataURL("image/jpeg", 1.0);
+					let blob = dataURLtoBlob(image);
+					let	file = new File([blob], "image.jpg", { type: "image/jpeg" });
+					describeImage(file);
+				}
+
+				const describeImage = (file) => {
+					const endpoint = 'computervision-api-letc.cognitiveservices.azure.com';
+					const key = '76e6fdbd3db84e93adf1c5d8b5b5d86f';
+					try {
+						$.ajax({
+							url: `https://${endpoint}/vision/v2.1/analyze?visualFeatures=Description,Tags&language=en`,
+							beforeSend: function(xhrObj){
+								// Request headers
+								//xhrObj.setRequestHeader("Content-Type","application/json");
+								//xhrObj.setRequestHeader('Access-Control-Allow-Origin', '*');
+								xhrObj.setRequestHeader("Content-Type","application/octet-stream");
+								xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", key);
+							},
+							type: "POST",
+							data: file,
+							processData: false,
+							error: function(xhr, status, error) {
+								alert("An AJAX error occured: " + status + "\nError: " + error);
+							}
+						})
+						.done((data) => {
+							const caption = data.description.captions[0];
+							speaker.speak("en", caption.text);							
+							frameLabel.innerHTML = `${caption.text} (${(caption.confidence * 100).toFixed(2)}% confidence)`;
+						})
+						.fail(function() {
+							console.log("Error");
+						});
+					} catch (err) {
+						console.log(err);
+					}
+				}
+
+				const dataURLtoBlob = (dataurl) => {
+					var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+						bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+					while(n--){
+						u8arr[n] = bstr.charCodeAt(n);
+					}
+					return new Blob([u8arr], {type:mime});
+				}
+			
+			</script>
+			
+	</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "LetC",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/cognitiveservices-computervision": "^8.2.0",
+    "@azure/ms-rest-azure-js": "^2.1.0",
+    "azure-mobile-apps-client": "^2.0.0-beta5",
+    "cors": "^2.8.5",
+    "express": "^4.17.3"
+  },
+  "proxy": "https://letc2.herokuapp.com/",
+  "engines": {
+    "node": "16.x"
+  }
+}
